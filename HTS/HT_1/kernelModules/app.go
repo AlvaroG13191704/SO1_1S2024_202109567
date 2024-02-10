@@ -78,7 +78,7 @@ func (a *App) GetMemory() Ram {
 		}
 	}
 
-	fmt.Printf("Total: %v\n", currentRam)
+	// fmt.Printf("Total: %v\n", currentRam)
 
 	return currentRam
 }

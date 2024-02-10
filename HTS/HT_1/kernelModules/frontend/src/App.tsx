@@ -1,54 +1,61 @@
-import {useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.css';
-import {Greet, GetMemory} from "../wailsjs/go/main/App";
+import {GetMemory} from "../wailsjs/go/main/App";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-export const data = {
-    labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-    datasets: [
-      {
-        label: '# of Votes',
-        data: [12, 19, 3, 5, 2, 3],
-        backgroundColor: [
-          'rgba(255, 99, 132, 0.2)',
-          'rgba(54, 162, 235, 0.2)',
-          'rgba(255, 206, 86, 0.2)',
-          'rgba(75, 192, 192, 0.2)',
-          'rgba(153, 102, 255, 0.2)',
-          'rgba(255, 159, 64, 0.2)',
-        ],
-        borderColor: [
-          'rgba(255, 99, 132, 1)',
-          'rgba(54, 162, 235, 1)',
-          'rgba(255, 206, 86, 1)',
-          'rgba(75, 192, 192, 1)',
-          'rgba(153, 102, 255, 1)',
-          'rgba(255, 159, 64, 1)',
-        ],
-        borderWidth: 1,
-      },
-    ],
-  };
+interface Memory {
+  Total: number;
+  Free: number;
+  Used: number;
+  PorcentUsed: number;
+}
+
 
 function App() {
 
+  const [memory, setMemory] = useState<Memory>({Free: 0, Total: 0, Used: 0, PorcentUsed: 0});
+  let data = {
+    labels: ['Libre', 'En uso'],
+    datasets: [
+      {
+        label: ' GB de memoria',
+        data: [memory.Free, memory.Used],
+        backgroundColor: [
+          'rgba(255, 99, 132, 0.2)',
+          'rgba(54, 162, 235, 0.2)'
+        ],
+        borderColor: [
+          'rgba(255, 99, 132, 1)',
+          'rgba(54, 162, 235, 1)'
+        ],
+        borderWidth: 1,
+      },
+    ],  
+  };
 
-    function getMemory() {
-        GetMemory().then((result) => {
-            console.log(result);
-        });
-    }
+
+  useEffect(() => {
+    GetMemory().then((result: Memory) => {
+      setMemory(result);
+      data.datasets[0].data = [result.Free, result.Used];
+
+      console.log(result);
+    });
+  }
+  , [memory]);
+
 
     return (
-        <div id="App">
-        <Doughnut data={data} />;
-
-
-            <button onClick={getMemory}>Get Memory</button>
+      <div id="App">
+        <div id="container">
+          <h2>RAM</h2>
+          <h3>{memory.PorcentUsed}% en uso</h3>
+          <Doughnut data={data} />
         </div>
+      </div>
     )
 }
 
