@@ -38,14 +38,16 @@ function App() {
 
 
   useEffect(() => {
-    GetMemory().then((result: Memory) => {
-      setMemory(result);
-      data.datasets[0].data = [result.Free, result.Used];
+    const interval = setInterval(() => {
+      GetMemory().then((result: Memory) => {
+        setMemory(result);
+        data.datasets[0].data = [result.Free, result.Used];
+      });
+    },500);
 
-      console.log(result);
-    });
+    return () => clearInterval(interval);
   }
-  , [memory]);
+  , []);
 
 
     return (

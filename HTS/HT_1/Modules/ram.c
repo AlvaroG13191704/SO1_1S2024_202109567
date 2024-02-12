@@ -19,11 +19,6 @@ const long gigabyte = 1024 * 1024 * 1024;
 // Obteniendo estadísticas del sistema
 struct sysinfo si;
 
-static void init_meminfo(void) {
-   si_meminfo(&si);
-}
-
-
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("Modulo de RAM, Laboratorio Sistemas Operativos 1");
 MODULE_AUTHOR("AlvaroG");
@@ -33,18 +28,16 @@ static int escribir_archivo(struct seq_file *archivo, void *v)
 {
     unsigned long totalram, freeram, usedram, percent_used;
 
-    init_meminfo();
+    si_meminfo(&si);
 
-    // Extract free memory
-    freeram = si.freeram / gigabyte;
-    // Extract total memory
-    totalram = si.totalram / gigabyte;
+    totalram = si.totalram * si.mem_unit;
 
-    // Calculate used memory
-    usedram = (totalram - freeram) / gigabyte;
+    freeram = (si.freeram * si.mem_unit) + (si.bufferram + si.mem_unit) + (si.sharedram * si.mem_unit);
 
-    // Calculate percentage of used memory
-    percent_used = usedram * 100 / totalram;
+    usedram = totalram - freeram;
+
+    percent_used = (usedram * 100) / totalram;
+
 
     // Print all the information to the file
     seq_printf(archivo, "Free memory: %lu\n", freeram);
