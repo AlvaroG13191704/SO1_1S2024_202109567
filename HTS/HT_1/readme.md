@@ -6,7 +6,6 @@
 
 #### Compilar archivo de C
 ```bash
-gcc -o hola hola.c
 make
 ```
 #### Instalar modulo
