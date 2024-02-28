@@ -38,74 +38,63 @@ static int escribir_a_proc(struct seq_file *file_proc, void *v)
   unsigned long total_cpu_time = jiffies_to_msecs(get_jiffies_64());
   unsigned long total_usage = 0;
 
-  for_each_process(task) {
-      unsigned long cpu_time = jiffies_to_msecs(task->utime + task->stime);
-      unsigned long cpu_percentage = (cpu_time * 100) / total_cpu_time;
-      total_usage += cpu_time;
-  }
+    for_each_process(task) {
+        unsigned long cpu_time = jiffies_to_msecs(task->utime + task->stime);
+        unsigned long cpu_percentage = (cpu_time * 100) / total_cpu_time;
+        total_usage += cpu_time;
+    }
   //---------------------------------------------------------------------------
-  seq_printf(file_proc, "{\n\"totalCPU\":%d,\n", total_cpu_time);
-  seq_printf(file_proc, "\"percentCPU\":%d,\n", (total_usage * 100) / total_cpu_time);
-  seq_printf(file_proc, "\"processes\":[\n");
-  int b = 0;
+    seq_printf(file_proc, "{\n\"totalCPU\":%lu,\n", total_cpu_time);
+    seq_printf(file_proc, "\"percentCPU\":%lu,\n", (total_usage * 100) / total_cpu_time);
+    seq_printf(file_proc, "\"processes\":[\n");
+    int isFirstProcess = 1;
 
-  for_each_process(task)
-  {
-    if (task->mm)
+    for_each_process(task)
     {
-    rss = get_mm_rss(task->mm) << PAGE_SHIFT;
-    }
-    else
-    {
-    rss = 0;
-    }
-    if (b == 0)
-    {
-    seq_printf(file_proc, "{");
-    b = 1;
-    }
-    else
-    {
-    seq_printf(file_proc, ",{");
-    }
-    seq_printf(file_proc, "\"pid\":%d,\n", task->pid);
-    seq_printf(file_proc, "\"name\":\"%s\",\n", task->comm);
-    seq_printf(file_proc, "\"user\": %d,\n", task->cred->uid);
-    seq_printf(file_proc, "\"state\":%ld,\n", task->__state);
-    int porcentaje = (rss * 100) / total_ram_pages;
-    seq_printf(file_proc, "\"ram\":%d,\n", porcentaje);
+        if (!isFirstProcess)
+        {
+            seq_printf(file_proc, ",\n");
+        }
 
-    seq_printf(file_proc, "\"child\":[\n");
-    int a = 0;
-    list_for_each(list, &(task->children))
-    {
-    task_child = list_entry(list, struct task_struct, sibling);
-    if (a != 0)
-    {
-        seq_printf(file_proc, ",{");
-        seq_printf(file_proc, "\"pid\":%d,\n", task_child->pid);
-        seq_printf(file_proc, "\"name\":\"%s\",\n", task_child->comm);
-        seq_printf(file_proc, "\"state\":%ld,\n", task_child->__state);
-        seq_printf(file_proc, "\"pidPadre\":%d\n", task->pid);
-        seq_printf(file_proc, "}\n");
+        seq_printf(file_proc, "{\n");
+        seq_printf(file_proc, "\"pid\":%d,\n", task->pid);
+        seq_printf(file_proc, "\"name\":\"%s\",\n", task->comm);
+        seq_printf(file_proc, "\"user\": %u,\n", __kuid_val(task->cred->uid));
+        seq_printf(file_proc, "\"state\":%u,\n", task->__state);
+        seq_printf(file_proc, "\"child\":[\n");
+
+        int isFirstChild = 1;
+
+        list_for_each(list, &(task->children))
+        {
+            task_child = list_entry(list, struct task_struct, sibling);
+
+            if (!isFirstChild)
+            {
+                seq_printf(file_proc, ",\n");
+            }
+
+            seq_printf(file_proc, "{\n");
+            seq_printf(file_proc, "\"pid\":%d,\n", task_child->pid);
+            seq_printf(file_proc, "\"name\":\"%s\",\n", task_child->comm);
+            seq_printf(file_proc, "\"state\":%u,\n", task_child->__state);
+            seq_printf(file_proc, "\"pidPadre\":%d\n", task->pid);
+            seq_printf(file_proc, "}");
+
+            isFirstChild = 0;
+        }
+
+        seq_printf(file_proc, "\n]\n"); 
+        seq_printf(file_proc, "}"); 
+
+        isFirstProcess = 0;
     }
-    else
-    {
-        seq_printf(file_proc, "{");
-        seq_printf(file_proc, "\"pid\":%d,\n", task_child->pid);
-        seq_printf(file_proc, "\"name\":\"%s\",\n", task_child->comm);
-        seq_printf(file_proc, "\"state\":%ld,\n", task_child->__state);
-        seq_printf(file_proc, "\"pidPadre\":%d\n", task->pid);
-        seq_printf(file_proc, "}\n");
-        a = 1;
-    }
-    }
-    a = 0;
-    seq_printf(file_proc, "}\n");
-  }
-  b = 0;
-  seq_printf(file_proc, "]}\n");
-  return 0;
+
+    seq_printf(file_proc, "\n]\n"); 
+    seq_printf(file_proc, "}\n"); 
+
+    return 0;
+
 }
 
 static int abrir_aproc(struct inode *inode, struct file *file)
