@@ -60,8 +60,7 @@ static int escribir_a_proc(struct seq_file *file_proc, void *v)
         seq_printf(file_proc, "\"pid\":%d,\n", task->pid);
         seq_printf(file_proc, "\"name\":\"%s\",\n", task->comm);
         seq_printf(file_proc, "\"user\": %u,\n", __kuid_val(task->cred->uid));
-        seq_printf(file_proc, "\"state\":%u,\n", task->__state);
-        seq_printf(file_proc, "\"child\":[\n");
+        seq_printf(file_proc, "\"children\":[\n");
 
         int isFirstChild = 1;
 
@@ -77,8 +76,7 @@ static int escribir_a_proc(struct seq_file *file_proc, void *v)
             seq_printf(file_proc, "{\n");
             seq_printf(file_proc, "\"pid\":%d,\n", task_child->pid);
             seq_printf(file_proc, "\"name\":\"%s\",\n", task_child->comm);
-            seq_printf(file_proc, "\"state\":%u,\n", task_child->__state);
-            seq_printf(file_proc, "\"pidPadre\":%d\n", task->pid);
+            seq_printf(file_proc, "\"pidFather\":%d\n", task->pid);
             seq_printf(file_proc, "}");
 
             isFirstChild = 0;
