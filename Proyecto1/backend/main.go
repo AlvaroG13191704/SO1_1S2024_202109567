@@ -1,12 +1,9 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
-	"os/exec"
-	"sopes1/proyecto1/db"
 	"sopes1/proyecto1/models"
-	"time"
+	"sopes1/proyecto1/util"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -16,93 +13,80 @@ func main() {
 
 	app.Get("/real-time", func(c *fiber.Ctx) error {
 
-		ram, err := getRAM()
-		if err != nil {
-			log.Fatalf("getRAM() failed with %s\n", err)
-			return c.JSON(fiber.Map{
-				"error": "getRAM() failed",
-			})
-		}
+		ramCh := make(chan models.Ram, 1)
+		cpuCh := make(chan models.Cpu, 1)
+		errCh := make(chan error, 1)
 
-		cpu, err := getCPU()
-		if err != nil {
-			log.Fatalf("getCPU() failed with %s\n", err)
-			return c.JSON(fiber.Map{
-				"error": "getCPU() failed",
-			})
-		}
+		go func() {
+			ram, err := util.GetRAM()
+			if err != nil {
+				errCh <- err
+				return
+			}
+			ramCh <- ram
+		}()
 
+		go func() {
+			cpu, err := util.GetCPU(true)
+			if err != nil {
+				errCh <- err
+				return
+			}
+			cpuCh <- cpu
+		}()
+
+		var ram models.Ram
+		var cpu models.Cpu
+		for i := 0; i < 2; i++ {
+			select {
+			case ram = <-ramCh:
+			case cpu = <-cpuCh:
+			case err := <-errCh:
+				log.Fatalf("Error fetching data: %s\n", err)
+				return c.JSON(fiber.Map{
+					"error": err.Error(),
+				})
+			}
+		}
 		// read from kernel
 		return c.JSON(fiber.Map{
 			"ram": ram,
-			"cpu": cpu,
+			"cpu": map[string]string{
+				"percentage": cpu.PercentCPU,
+			},
+		})
+	})
+
+	app.Get("/get-history", func(c *fiber.Ctx) error {
+		ramHistory, err := util.GetHistoryRam()
+		if err != nil {
+			return c.JSON(fiber.Map{
+				"error": err.Error(),
+			})
+		}
+		cpuHistory, err := util.GetHistoryCPU()
+		if err != nil {
+			return c.JSON(fiber.Map{
+				"error": err.Error(),
+			})
+		}
+		return c.JSON(fiber.Map{
+			"ram": ramHistory,
+			"cpu": cpuHistory,
+		})
+	})
+
+	app.Get("/get-processes", func(c *fiber.Ctx) error {
+		cpu, err := util.GetCPU(false)
+		if err != nil {
+			return c.JSON(fiber.Map{
+				"error": err.Error(),
+			})
+		}
+		return c.JSON(fiber.Map{
+			"processes": cpu.Processes,
 		})
 	})
 
 	app.Listen(":8080")
-}
-
-func getCPU() (models.Cpu, error) {
-	cmd := exec.Command("sudo", "cat", "/proc/cpu_so1_1s2024")
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		log.Fatalf("cmd.Run() failed with %s\n", err)
-	}
-
-	// marshal to Ram struct
-	var cpu models.Cpu
-	err = json.Unmarshal(out, &cpu)
-	if err != nil {
-		log.Fatalf("json.Unmarshal() failed with %s\n", err)
-	}
-
-	date := time.Now().Format("2006-01-02 15:04:05")
-	cpu.Date = &date
-
-	// save to db
-	dbClient, err := db.GetDB()
-	if err != nil {
-		log.Fatalf("db.GetDB() failed with %s\n", err)
-		return cpu, err
-	}
-
-	// insert to db
-	_, err = dbClient.Exec(
-		"INSERT INTO CPU (total_cpu, percentage_use, date_time, processes) VALUES ($1, $2, $3, $4)",
-		cpu.TotalCPU, cpu.PercentCPU, cpu.Date, cpu.Processes)
-
-	return cpu, err
-
-}
-
-func getRAM() (models.Ram, error) {
-	cmd := exec.Command("sudo", "cat", "/proc/ram_so1_1s2024")
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		log.Fatalf("cmd.Run() failed with %s\n", err)
-	}
-
-	// marshal to Ram struct
-	var ram models.Ram
-	err = json.Unmarshal(out, &ram)
-	if err != nil {
-		log.Fatalf("json.Unmarshal() failed with %s\n", err)
-	}
-
-	date := time.Now().Format("2006-01-02 15:04:05")
-	ram.Date = &date
-
-	// save to db
-	dbClient, err := db.GetDB()
-	if err != nil {
-		log.Fatalf("db.GetDB() failed with %s\n", err)
-		return ram, err
-	}
-
-	// insert to db
-	_, err = dbClient.Exec(
-		"INSERT INTO RAM (total, free, used_ram, percentage_use, date_time) VALUES ($1, $2, $3, $4, $5)",
-		ram.TotalRam, ram.FreeRam, ram.UsedRam, ram.PercentUsed, ram.Date)
-
-	return ram, err
 }

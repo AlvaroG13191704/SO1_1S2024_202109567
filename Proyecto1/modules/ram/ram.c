@@ -37,7 +37,7 @@ static int escribir_archivo(struct seq_file *archivo, void *v)
     percent_used = (usedram * 100) / totalram;
 
     // Print all the information to the file
-    seq_printf(archivo, "{\"totalRam\": \"%lu\", \"freeRam\": \"%lu\", \"usedRam\": \"%lu\", \"percentUsed\": \"%lu\"}\n", totalram, freeram, usedram, percent_used);
+    seq_printf(archivo, "{\"totalRam\": %lu, \"freeRam\": %lu, \"usedRam\": %lu, \"percentUsed\": %lu}\n", totalram, freeram, usedram, percent_used);
 
     return 0;
 }

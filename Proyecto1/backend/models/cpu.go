@@ -1,21 +1,33 @@
 package models
 
-type Cpu struct {
-	TotalCPU   string    `json:"totalCPU"`
-	PercentCPU string    `json:"percentCPU"`
-	Date       *string   `json:"date"`
-	Processes  []Process `json:"processes"`
+type CpuFromKernel struct {
+	TotalCPU   int64 `json:"totalCPU"`
+	PercentCPU int64 `json:"percentCPU"`
+	// Date       *string   `json:"date"`
+	Processes []Process `json:"processes"`
 }
 
 type Process struct {
-	Pid      string         `json:"pid"`
+	Pid      int64          `json:"pid"`
 	Name     string         `json:"name"`
-	User     string         `json:"user"`
+	User     int64          `json:"user"`
 	Children []ProcessChild `json:"children"`
 }
 
 type ProcessChild struct {
-	Pid       string `json:"pid"`
+	Pid       int64  `json:"pid"`
 	Name      string `json:"name"`
-	PidFather string `json:"pidFather"`
+	PidFather int64  `json:"pidFather"`
+}
+
+type Cpu struct {
+	TotalCPU   string    `json:"totalCPU"`
+	PercentCPU string    `json:"percentCPU"`
+	Date       string    `json:"date"`
+	Processes  []Process `json:"processes"`
+}
+
+type HistoryCpu struct {
+	Date       string `json:"date"`
+	Percentage string `json:"percentage"`
 }
