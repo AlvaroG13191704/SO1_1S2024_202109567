@@ -31,7 +31,7 @@ func GetCPU(saveOnDB bool) (models.Cpu, error) {
 			log.Fatalf("db.GetDB() failed with %s\n", err)
 			return cpu, err
 		}
-		defer dbClient.Close()
+		// defer dbClient.Close()
 
 		processesJson, err := json.Marshal(cpu.Processes)
 		if err != nil {

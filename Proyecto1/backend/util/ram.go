@@ -30,7 +30,7 @@ func GetRAM() (models.Ram, error) {
 		log.Fatalf("db.GetDB() failed with %s\n", err)
 		return ram, err
 	}
-	defer dbClient.Close()
+	// defer dbClient.Close()
 
 	// insert to db
 	_, err = dbClient.Exec(

@@ -11,6 +11,14 @@ import (
 func main() {
 	app := fiber.New()
 
+	// add cors
+	app.Use(func(c *fiber.Ctx) error {
+		c.Set("Access-Control-Allow-Origin", "*")
+		c.Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
+		c.Set("Access-Control-Allow-Headers", "Content-Type")
+		return c.Next()
+	})
+
 	app.Get("/real-time", func(c *fiber.Ctx) error {
 
 		ramCh := make(chan models.Ram, 1)
@@ -48,6 +56,8 @@ func main() {
 				})
 			}
 		}
+
+		log.Println("real time ")
 		// read from kernel
 		return c.JSON(fiber.Map{
 			"ram": ram,
