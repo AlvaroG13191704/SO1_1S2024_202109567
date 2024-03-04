@@ -3,6 +3,7 @@ import { DataSet, Network } from 'vis-network/standalone/esm/vis-network';
 import { Process, Processes } from "@/interfaces/processes.interface";
 import { useEffect, useRef, useState } from "react";
 
+
 export function Tree() {
   const networkContainer = useRef(null);
   const [selectedProcess, setSelectedProcess] = useState<Process>({
@@ -27,32 +28,6 @@ export function Tree() {
   //   // console.log(processes);
   // }, [processes]); // This useEffect runs whenever `processes` changes
 
-  useEffect(() => {
-    if (selectedProcess.children.length > 0 && networkContainer.current) {
-      const nodes = new DataSet(selectedProcess.children.map((child, index) => ({ id: index, label: child.name + " (" + child.pid + ")"})));
-      const edges = new DataSet(selectedProcess.children.map((child, index) => ({ from: selectedProcess.pid, to: index })));
-
-      const data = {
-        nodes: nodes,
-        edges: edges
-      };
-
-      const options = {
-        layout: {
-          hierarchical: {
-            direction: "UD",
-            sortMethod: "directed",
-            levelSeparation: 500,
-            nodeSpacing: 500
-          }
-        }
-      };
-
-      new Network(networkContainer.current, data, options);
-    }
-  }, [selectedProcess]); // This useEffect runs whenever `selectedProcess` changes
-
-  
   const handleSelectChange = (event:any) => {
     console.log(event.target.value);
     const selectedPid = parseInt(event.target.value);
@@ -63,6 +38,48 @@ export function Tree() {
       }
     });
   };
+
+
+  useEffect(() => {
+    if (selectedProcess.children.length > 0 && networkContainer.current) {
+      const nodes = new DataSet([
+        { id: selectedProcess.pid, label: selectedProcess.name + " (" + selectedProcess.pid + ")" },
+        ...selectedProcess.children.map((child) => ({ id: child.pid, label: child.name + " (" + child.pid + ")" }))
+      ]);
+  
+      // const edges = new DataSet(selectedProcess.children.map((child) => ({ from: selectedProcess.pid, to: child.pid })));
+      const edges = new DataSet(selectedProcess.children.map((child, index) => ({ id: index, from: selectedProcess.pid, to: child.pid })));
+  
+      const data = {
+        nodes: nodes,
+        edges: edges
+      };
+  
+      const options = {
+        layout: {
+          hierarchical: {
+            direction: "UD",
+            sortMethod: "directed",
+            levelSeparation: 500,
+            nodeSpacing: 500
+          }
+        }
+      };
+  
+      new Network(networkContainer.current, data, options);
+    } else {
+      // add a message to the container
+      if (networkContainer.current) {
+        (networkContainer.current as HTMLElement).innerHTML = `
+          <div class="text-white text-2xl font-bold mb-2 mt-4">
+            El proceso id :  ${selectedProcess.pid} - ${selectedProcess.name} no tiene procesos hijos
+          </div>
+        `;
+      }
+    }
+  }, [selectedProcess]); // This useEffect runs whenever `selectedProcess` changes
+
+  
   return (
 <div className="flex flex-col w-full">
   <h1 className="text-white text-2xl font-bold mb-2">Seleccione un proceso</h1>
@@ -78,6 +95,7 @@ export function Tree() {
   ))}
   </select>
   <div ref={networkContainer} style={{ height: "500px", width: "100%" }}></div>
+
 </div>
   );
 }

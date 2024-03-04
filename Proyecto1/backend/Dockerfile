@@ -1,23 +1,15 @@
-
-FROM golang:1.22rc1-bullseye AS build
-
-WORKDIR /app 
-
-COPY go.mod go.sum ./
-
-RUN go mod download
-
+#build stage
+FROM golang:alpine AS builder
+RUN apk add --no-cache git
+WORKDIR /go/src/app
 COPY . .
+RUN go get -d -v
+RUN go build -o /go/bin/app
 
-RUN go build \
-  -ldflags="-linkmode external -extldflags -static" \
-  -tags netgo \
-  -o app
-
-FROM scratch
-
-WORKDIR /
-
-COPY --from=build /app/app app
-
-CMD ["/app"]
+#final stage
+FROM alpine:latest
+RUN apk --no-cache add ca-certificates
+COPY --from=builder /go/bin/app /app
+ENTRYPOINT ["/app"]
+LABEL Name=proyecto1 Version=0.0.1
+EXPOSE 8080

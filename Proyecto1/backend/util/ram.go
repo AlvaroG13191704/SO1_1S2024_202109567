@@ -9,7 +9,8 @@ import (
 )
 
 func GetRAM() (models.Ram, error) {
-	cmd := exec.Command("sudo", "cat", "/proc/ram_so1_1s2024")
+	// cmd := exec.Command("sudo", "cat", "/proc/ram_so1_1s2024")
+	cmd := exec.Command("cat", "/proc/ram_so1_1s2024")
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		log.Fatalf("cmd.Run() failed with %s\n", err)
