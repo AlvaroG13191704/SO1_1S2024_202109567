@@ -74,7 +74,7 @@ export default function RealTimePage() {
         dataCPU.datasets[0].data = [Number(data.cpu.percentage), (100 - Number(data.cpu.percentage))];
       })
       .catch(error => console.error('Error:', error));
-  }, 2000);
+  }, 500);
 
     return () => clearInterval(interval);
   }

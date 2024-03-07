@@ -8,6 +8,9 @@ services:
       - backend
   backend:
     build: ./backend
+    privileged: true
+    pid: host
+    restart: always
     ports:
       - "8080:8080"
     volumes:
@@ -20,6 +23,7 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: Proyecto1
     ports:
       - 3306:3306
     volumes:

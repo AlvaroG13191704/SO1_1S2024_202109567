@@ -34,15 +34,10 @@ func GetCPU(saveOnDB bool) (models.Cpu, error) {
 		}
 		// defer dbClient.Close()
 
-		processesJson, err := json.Marshal(cpu.Processes)
-		if err != nil {
-			log.Fatalf("Failed to marshal processes: %v", err)
-		}
-
 		// insert to db
 		_, err = dbClient.Exec(
-			"INSERT INTO CPU (total_cpu, percentage_use, date_time, processes) VALUES (?, ?, ?, ?)",
-			cpu.TotalCPU, cpu.PercentCPU, cpu.Date, string(processesJson))
+			"INSERT INTO CPU (total_cpu, percentage_use, date_time) VALUES (?, ?, ?)",
+			cpu.TotalCPU, cpu.PercentCPU, cpu.Date)
 
 		return cpu, err
 	}

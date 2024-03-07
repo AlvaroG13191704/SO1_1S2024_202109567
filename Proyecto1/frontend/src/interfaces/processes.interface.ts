@@ -16,3 +16,10 @@ export interface Child {
   name:      string;
   pidFather: number;
 }
+
+export interface ProcessState {
+  pid: number;
+  status: string;
+  previousStatus: string;
+  color: string;
+}

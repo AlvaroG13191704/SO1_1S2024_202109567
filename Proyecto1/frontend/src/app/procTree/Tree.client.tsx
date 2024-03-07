@@ -1,6 +1,6 @@
 'use client';
 import { DataSet, Network } from 'vis-network/standalone/esm/vis-network';
-import { Process, Processes } from "@/interfaces/processes.interface";
+import { Process } from "@/interfaces/processes.interface";
 import { useEffect, useRef, useState } from "react";
 
 
