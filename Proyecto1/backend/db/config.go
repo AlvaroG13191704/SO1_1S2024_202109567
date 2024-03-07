@@ -16,8 +16,8 @@ var (
 func GetDB() (*sql.DB, error) {
 	var err error
 	once.Do(func() {
-		// 0.0.0.0:3306
-		db, err = sql.Open("mysql", "root:admin@tcp(db:3306)/Proyecto1")
+		// 0.0.0.0:3306 db:3306
+		db, err = sql.Open("mysql", "root:admin@tcp(0.0.0.0:3306)/Proyecto1")
 		if err != nil {
 			return
 		}

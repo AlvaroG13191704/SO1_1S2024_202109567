@@ -77,7 +77,7 @@ export default function History() {
   });
 
   useEffect(() => {
-    fetch('http://127.0.0.1:8080/get-history')
+    fetch('http://127.0.0.1:8080/api/get-history')
       .then(response => response.json())
       .then(data => {
         console.log(data)

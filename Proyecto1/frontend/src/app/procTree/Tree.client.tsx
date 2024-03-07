@@ -16,7 +16,7 @@ export function Tree() {
   const [processes, setProcesses] = useState({ processes: [] });
 
   useEffect(() => {
-    fetch('http://127.0.0.1:8080/get-processes')
+    fetch('http://127.0.0.1:8080/api/get-processes')
       .then(response => response.json())
       .then(data => {
         setProcesses(data);

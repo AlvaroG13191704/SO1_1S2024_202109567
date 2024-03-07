@@ -64,7 +64,7 @@ export default function RealTimePage() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      fetch('http://127.0.0.1:8080/real-time')
+      fetch('http://127.0.0.1:8080/api/real-time')
       .then(response => response.json())
       .then(data => {
         setRealTime(data);
