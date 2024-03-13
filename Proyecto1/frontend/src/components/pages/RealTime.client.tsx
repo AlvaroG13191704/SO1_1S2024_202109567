@@ -88,12 +88,12 @@ export default function RealTimePage() {
         <div>
           <h2 className="text-white text-lg font-bold">Memoria RAM</h2>
           <p className="text-white text-sm">Porcentaje de uso actual: {realTime.ram.percent}%</p>
-          <Doughnut data={dataRAM} width={400} />;
+          <Doughnut data={dataRAM} width={400} />
         </div>
         <div>
           <h2 className="text-white text-lg font-bold">CPU</h2>
           <p className="text-white text-sm">Porcentaje de uso actual: {realTime.cpu.percentage}%</p>
-          <Doughnut data={dataCPU} width={400} />;
+          <Doughnut data={dataCPU} width={400} />
         </div>
       </div>
     </main>

@@ -1,5 +1,5 @@
 "use client";
-import { DataSet, Network } from "vis-network/standalone/esm/vis-network";
+import { Network } from "vis-network";
 import { useEffect, useRef, useState } from "react";
 import { ProcessState } from "@/interfaces/processes.interface";
 
@@ -15,53 +15,63 @@ export default function States() {
   useEffect(() => {
     if (process.pid !== 0 && networkContainer.current) {
       const baseNodes = [
-        { id: 1, label: "New", color: "#FFFFFF", shape: "circle", },
-        { id: 2, label: "Ready", color: "#FFFFFF" ,shape: "circle"},
-        { id: 3, label: "Running", color: "#FFFFFF", shape: "circle" },
+        { id: 1, label: "New", color: "white" },
+        { id: 2, label: "Ready" , color: "white"},
+        { id: 3, label: "Running", color: "white" },
       ];
       const baseEdges = [
-        { id: 1, from: 1, to: 2, },
-        { id: 2, from: 2, to: 3 },
+        { from: 1, to: 2 , color : "white"},
+        { from: 2, to: 3 , color : "white"},
       ];
 
-      let nodes = new DataSet([...baseNodes]);
-      let edges = new DataSet([...baseEdges]);
+      let nodes = [...baseNodes];
+      let edges = [...baseEdges];
 
       switch (process.status) {
         case "started":
-          nodes.update({ id: 3, color: process.color });
+          nodes[2].color = process.color;
           break;
         case "stopped":
-          nodes.update({ id: 2, color: process.color });
-          edges.add({ id: 4, from: 3, to: 2 });
-          edges.add({ id: 5, from: 2, to: 3, });
+          nodes[1].color = process.color;
+          edges.push({ from: 3, to: 2 , color : process.color});
           break;
         case "resumed":
-          nodes.update({ id: 3, color: process.color });
+          nodes[2].color = process.color;
           break;
         case "killed":
-          nodes.add({ id: 4, label: "Killed", color: process.color ,shape: "circle"});
-          edges.add({ id: 3, from: 3, to: 4 });
+          nodes.push({
+            id: 4,
+            label: "Terminated",
+            color: process.color,
+          });
+          edges.push({ from: 3, to: 4 , color : process.color});
           break;
       }
 
-      const data = {
-        nodes: nodes,
-        edges: edges,
-      };
 
       const options = {
-        layout: {
-          hierarchical: {
-            direction: "LR",
-            levelSeparation: 300,
-            nodeSpacing: 300,
-            blockShifting: true,
+
+        nodes: {
+          font: {
+            size: 20, 
+            color: "black",
+          },
+          color: {
+            background: "white",
+            border: "white",
+          },
+        },
+        borderColor: "white",
+        edges: {
+          arrows: {
+            to: {
+              enabled: true,
+              scaleFactor: 0.8,
+            },
           },
         },
       };
-
-      new Network(networkContainer.current, data, options);
+      new Network(networkContainer.current, {nodes, edges}, options);
     } else {
       // clear
       if (networkContainer.current) {
@@ -108,7 +118,6 @@ export default function States() {
   }
 
   async function handleKillProcess() {
-
     const response = await makeRequest(`process/kill?pid=${process.pid}`);
 
     setProcess({

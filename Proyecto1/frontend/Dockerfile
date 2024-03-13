@@ -1,24 +1,81 @@
-# Start with the official Node.js image.
-FROM node:18-alpine
+FROM node:18-alpine AS base
 
-# Set the working directory
+# Install dependencies only when needed
+FROM base AS deps
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Copy package.json and package-lock.json before other files
-# Utilise Docker cache to save re-installing dependencies if unchanged
-COPY package*.json ./
+# Install dependencies based on the preferred package manager
+COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+RUN \
+    if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
+    elif [ -f package-lock.json ]; then npm ci; \
+    elif [ -f pnpm-lock.yaml ]; then yarn global add pnpm && pnpm i --frozen-lockfile; \
+    else echo "Lockfile not found." && exit 1; \
+    fi
 
-# Install dependencies
-RUN npm install
 
-# Copy all files
+# Rebuild the source code only when needed
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Build the Next.js app
-RUN npm run build
+RUN yarn build
 
-# Expose the listening port
-EXPOSE 3000
+# Production image, copy all the files and run next
+FROM base AS runner
+WORKDIR /app
 
-# Run npm start script
-CMD ["npm", "start"]
+ENV NODE_ENV production
+
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+COPY --from=builder /app/public ./public
+
+# Set the correct permission for prerender cache
+RUN mkdir .next
+RUN chown nextjs:nodejs .next
+
+# Automatically leverage output traces to reduce image size
+# https://nextjs.org/docs/advanced-features/output-file-tracing
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+USER nextjs
+
+EXPOSE 80
+
+ENV PORT 80
+# set hostname to localhost
+ENV HOSTNAME "0.0.0.0"
+
+# server.js is created by next build from the standalone output
+# https://nextjs.org/docs/pages/api-reference/next-config-js/output
+CMD ["node", "server.js"]
+
+# # Start with the official Node.js image.
+# FROM node:18-alpine
+
+# # Set the working directory
+# WORKDIR /app
+
+# # Copy package.json and package-lock.json before other files
+# # Utilise Docker cache to save re-installing dependencies if unchanged
+# COPY package*.json ./
+
+# # Install dependencies
+# RUN npm install
+
+# # Copy all files
+# COPY . .
+
+# # Build the Next.js app
+# RUN npm run build
+
+# # Expose the listening port
+# EXPOSE 3000
+
+# # Run npm start script
+# CMD ["npm", "start"]

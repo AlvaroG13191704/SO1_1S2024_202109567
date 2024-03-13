@@ -1,5 +1,5 @@
 'use client';
-import { DataSet, Network } from 'vis-network/standalone/esm/vis-network';
+import { Network } from "vis-network";
 import { Process } from "@/interfaces/processes.interface";
 import { useEffect, useRef, useState } from "react";
 
@@ -42,13 +42,12 @@ export function Tree() {
 
   useEffect(() => {
     if (selectedProcess.children.length > 0 && networkContainer.current) {
-      const nodes = new DataSet([
+      const nodes =[
         { id: selectedProcess.pid, label: selectedProcess.name + " (" + selectedProcess.pid + ")" },
         ...selectedProcess.children.map((child) => ({ id: child.pid, label: child.name + " (" + child.pid + ")" }))
-      ]);
+      ];
   
-      // const edges = new DataSet(selectedProcess.children.map((child) => ({ from: selectedProcess.pid, to: child.pid })));
-      const edges = new DataSet(selectedProcess.children.map((child, index) => ({ id: index, from: selectedProcess.pid, to: child.pid })));
+      const edges = selectedProcess.children.map((child, index) => ({ id: index, from: selectedProcess.pid, to: child.pid }));
   
       const data = {
         nodes: nodes,
