@@ -138,7 +138,7 @@ export default function States() {
   }
 
   function makeRequest(url: string) {
-    return fetch(`http://127.0.0.1:8080/api/${url}`, {
+    return fetch(`/api/${url}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

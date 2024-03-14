@@ -1,4 +1,3 @@
-import LineGraph from "@/components/graphs/Line";
 import History from "./History.client";
 
 export default function HistoryPage() {

@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from "react";
-import { RAMHistory, CPUHistory, History } from '../../interfaces/history.interface';
+import type { RAMHistory, CPUHistory, History } from '../../interfaces/history.interface';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -77,7 +77,7 @@ export default function History() {
   });
 
   useEffect(() => {
-    fetch('http://127.0.0.1:8080/api/get-history')
+    fetch('/api/get-history')
       .then(response => response.json())
       .then(data => {
         console.log(data)
