@@ -21,7 +21,7 @@ func ConvertCpuFromKernelToCpu(cpuFromKernel models.CpuFromKernel) models.Cpu {
 
 	cpu := models.Cpu{
 		TotalCPU:   fmt.Sprintf("%d", cpuFromKernel.TotalCPU),
-		PercentCPU: fmt.Sprintf("%.2f", float64(cpuFromKernel.PercentCPU)/1000000),
+		PercentCPU: fmt.Sprintf("%.2f", float64(cpuFromKernel.PercentCPU)/1000),
 		Date:       time.Now().Format("2006-01-02 15:04:05"),
 		Processes:  cpuFromKernel.Processes,
 	}

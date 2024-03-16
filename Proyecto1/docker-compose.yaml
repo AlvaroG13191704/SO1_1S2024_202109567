@@ -10,7 +10,7 @@ services:
       - frontend
       - backend
   frontend:
-    build: ./frontend
+    image: alvarog1318/s1p1_frontend:v0.
     expose:
       - 3000
     environment:
@@ -18,7 +18,7 @@ services:
     depends_on:
       - backend
   backend:
-    build: ./backend
+    image: alvarog1318/s1p1_backend:v0.1
     privileged: true
     pid: host
     restart: always
