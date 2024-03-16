@@ -18,3 +18,5 @@
 - Extraer información:
   - Porcentaje de uso de CPU
   - Hora y fecha de la toma de datos
+
+docker build -t keviingarciah/so1_p1_client:v2.0

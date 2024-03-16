@@ -27,8 +27,6 @@ RUN yarn build
 FROM base AS runner
 WORKDIR /app
 
-ENV NODE_ENV production
-
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
@@ -54,28 +52,3 @@ ENV HOSTNAME "0.0.0.0"
 # server.js is created by next build from the standalone output
 # https://nextjs.org/docs/pages/api-reference/next-config-js/output
 CMD ["node", "server.js"]
-
-# # Start with the official Node.js image.
-# FROM node:18-alpine
-
-# # Set the working directory
-# WORKDIR /app
-
-# # Copy package.json and package-lock.json before other files
-# # Utilise Docker cache to save re-installing dependencies if unchanged
-# COPY package*.json ./
-
-# # Install dependencies
-# RUN npm install
-
-# # Copy all files
-# COPY . .
-
-# # Build the Next.js app
-# RUN npm run build
-
-# # Expose the listening port
-# EXPOSE 3000
-
-# # Run npm start script
-# CMD ["npm", "start"]
