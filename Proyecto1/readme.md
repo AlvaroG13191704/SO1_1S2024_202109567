@@ -156,7 +156,7 @@ services:
       - frontend
       - backend
   frontend:
-    image: alvarog1318/s1p1_frontend:v0.
+    image: alvarog1318/s1p1_frontend:v0.2
     expose:
       - 3000
     environment:
@@ -164,7 +164,7 @@ services:
     depends_on:
       - backend
   backend:
-    image: alvarog1318/s1p1_backend:v0.1
+    image: alvarog1318/s1p1_backend:v0.2
     privileged: true
     pid: host
     restart: always
@@ -195,11 +195,11 @@ Se subieron las im√°genes a docker hub para poder ser utilizadas en cualquier m√
 *Construir imagen del backend*
 ```bash
 # correr el comando en la carpeta del backend
-docker build -t alvarog1318/s1p1_backend:v0.1 .
+docker build -t alvarog1318/s1p1_backend:v0.2 .
 ```
 
 *Construir imagen del frontend*
 ```bash
 # correr el comando en la carpeta del frontend
-docker build -t alvarog1318/s1p1_frontend:v0.1 .
+docker build -t alvarog1318/s1p1_frontend:v0.2 .
 ```
