@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"tarea4/server/db"
 	pb "tarea4/server/proto"
 
 	"google.golang.org/grpc"
@@ -33,10 +34,18 @@ func (s *server) ReturnInfo(ctx context.Context, in *pb.RequestId) (*pb.ReplyInf
 		Rank:  in.GetRank(),
 	}
 	fmt.Println("data -> ", data)
+
+	db := db.ConnectToDB()
+
+	go db.InsertData(data.Name, data.Album, data.Year, data.Rank)
+
 	return &pb.ReplyInfo{Info: "Hola cliente, recibí el album"}, nil
 }
 
 func main() {
+
+	_ = db.ConnectToDB()
+
 	listen, err := net.Listen("tcp", port)
 	if err != nil {
 		log.Fatalln(err)

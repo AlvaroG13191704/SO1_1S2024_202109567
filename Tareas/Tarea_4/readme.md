@@ -1,6 +1,6 @@
 # Tarea 4  - Alvaro García 202109567
 
-## [Video explicación](https://youtu.be/5cz6gRAAOYw)
+## [Video explicación](https://youtu.be/RtPCabPzMeI)
 
 
 ## Locust y gRPC
@@ -30,7 +30,7 @@ pip install locust
 
 ### Levantar los serviodores
 ```bash
-locust -f locustfile.py # levantar locust
+locust -f main.py # levantar locust
 go run main.go # levantar el servidor y client grpc
 ```
 

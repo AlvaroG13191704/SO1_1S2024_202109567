@@ -1,0 +1,10 @@
+CREATE DATABASE Tarea4SO1;
+
+USE Tarea4SO1;
+
+CREATE TABLE Data (
+  Name VARCHAR(255),
+  Album VARCHAR(255),
+  Year VARCHAR(255),
+  `Rank` VARCHAR(255)
+);
