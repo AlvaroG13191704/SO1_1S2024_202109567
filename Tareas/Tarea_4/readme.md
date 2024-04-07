@@ -23,6 +23,7 @@ protoc --go_out=. --go-grpc_out=. [name].proto # compilar el archivo .proto
 
 ### Instalar locust
 ```bash
+python -m venv venv
 pip install locust
 ```
 
