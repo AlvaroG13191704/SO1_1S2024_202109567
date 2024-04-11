@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wasm-producer
+  namespace: so1-proyecto2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wasm-producer
+  template:
+    metadata:
+      labels:
+        app: wasm-producer
+    spec:
+      containers:
+      - name: grcp-client
+        image: alvarog1318/s1p2_wasm_producer:v0.1
+        ports:
+        - containerPort: 3000
+        resources:
+          limits:
+            cpu: "1"
+            memory: "1Gi"
