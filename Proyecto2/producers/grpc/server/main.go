@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 
+	"proyecto2/servergRPC/kafka"
 	"proyecto2/servergRPC/model"
 	pb "proyecto2/servergRPC/proto"
 
@@ -28,6 +29,9 @@ func (s *server) ReturnInfo(ctx context.Context, in *pb.RequestId) (*pb.ReplyInf
 		Rank:  in.GetRank(),
 	}
 	fmt.Println("data -> ", data)
+
+	// produce to kafka
+	kafka.Produce(data)
 
 	return &pb.ReplyInfo{Info: "Hola cliente, recibí el album"}, nil
 }

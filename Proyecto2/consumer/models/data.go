@@ -1,4 +1,9 @@
-package model
+package models
+
+type Log struct {
+	Value     string
+	CreatedAt string
+}
 
 type Data struct {
 	Name  string `json:"name"`

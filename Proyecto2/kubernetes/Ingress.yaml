@@ -4,8 +4,10 @@ metadata:
   name: so1-proyecto2-ingress
   namespace: so1-proyecto2
 spec:
+  ingressClassName: nginx
   rules:
-  - http:
+  - host: <REPLACE_WITH_YOUR_LB_IP_ADDRESS>.nip.io
+    http:
       paths:
       - path: /grcp
         pathType: Prefix
