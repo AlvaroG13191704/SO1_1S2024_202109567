@@ -4,7 +4,7 @@ metadata:
   name: consumer
   namespace: so1-proyecto2
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: consumer
@@ -14,8 +14,8 @@ spec:
         app: consumer
     spec:
       containers:
-      - name: grcp-client
-        image: alvarog1318/s1p2_consumer:v0.1
+      - name: consumer
+        image: alvarog1318/s1p2_consumer:v1.6
         resources:
           requests:
             cpu: "100m"

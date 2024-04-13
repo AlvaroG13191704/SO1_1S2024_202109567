@@ -56,12 +56,14 @@ func insertData(c *fiber.Ctx) error {
 
 	fmt.Println("Respuesta del server " + ret.GetInfo())
 
-	return nil
+	return c.Status(200).JSON(fiber.Map{
+		"message": "Data inserted",
+	})
 }
 
 func main() {
 	app := fiber.New()
-	app.Post("/insert", insertData)
+	app.Post("/", insertData)
 
 	err := app.Listen(":3000")
 	if err != nil {

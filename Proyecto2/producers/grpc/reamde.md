@@ -23,3 +23,10 @@ go get github.com/gofiber/fiber/v2 # fiber
 go get github.com/confluentinc/confluent-kafka-go # kafka
 ```
 
+### crear imagen de client
+
+```bash
+docker build -t alvarog1318/s1p2_grcp_producer_client:v0.1 . # crear imagen de cliente
+
+docker build -t alvarog1318/s1p2_grcp_producer_server:v0.1 . # crear imagen de servidor
+```

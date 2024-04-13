@@ -17,6 +17,5 @@ FROM scratch
 
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=build /app/consumer consumer
-COPY --from=build /app/templates /templates 
 
 CMD ["/consumer"]
