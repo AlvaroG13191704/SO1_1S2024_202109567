@@ -15,11 +15,8 @@ spec:
     spec:
       containers:
       - name: consumer
-        image: alvarog1318/s1p2_consumer:v1.6
+        image: alvarog1318/s1p2_consumer:v2.0
         resources:
-          requests:
-            cpu: "100m"
-            memory: "100Mi"
           limits:
-            cpu: "500m"
+            cpu: "0.2"
             memory: "500Mi"

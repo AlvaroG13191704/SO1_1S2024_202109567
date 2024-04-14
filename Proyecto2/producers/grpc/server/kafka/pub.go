@@ -2,7 +2,6 @@ package kafka
 
 import (
 	"context"
-	"crypto/tls"
 	"encoding/json"
 	"log"
 	"proyecto2/servergRPC/model"
@@ -12,32 +11,60 @@ import (
 )
 
 func Produce(value model.Data) {
-	dialer := &kafka.Dialer{
-		Timeout:   10 * time.Second,
-		DualStack: true,
-		TLS:       &tls.Config{}, // Enable TLS
-	}
+	// to produce messages
+	topic := "mytopic"
+	partition := 0
 
-	w := kafka.NewWriter(kafka.WriterConfig{
-		Brokers: []string{"my-cluster-kafka-bootstrap:9091", "my-cluster-kafka-bootstrap:9092", "my-cluster-kafka-bootstrap:9093"},
-		Topic:   "mytopic",
-		Dialer:  dialer, // Use the custom dialer
-	})
+	conn, err := kafka.DialLeader(context.Background(), "tcp", "my-cluster-kafka-bootstrap:9092", topic, partition)
+	if err != nil {
+		log.Fatal("failed to dial leader:", err)
+	}
 
 	// Convert the data struct into a byte slice
 	valueBytes, err := json.Marshal(value)
 	if err != nil {
 		log.Fatalf("Failed to marshal value: %v", err)
 	}
-
-	err = w.WriteMessages(context.Background(), kafka.Message{
-		Value: valueBytes,
-	})
-
+	conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
+	_, err = conn.WriteMessages(
+		kafka.Message{Value: valueBytes},
+	)
 	if err != nil {
-		log.Fatalf("Failed to write message: %v", err)
+		log.Fatal("failed to write messages:", err)
 	}
+
+	if err := conn.Close(); err != nil {
+		log.Fatal("failed to close writer:", err)
+	}
+
+	log.Println("Message sent")
 }
+
+// dialer := &kafka.Dialer{
+// 	Timeout:   10 * time.Second,
+// 	DualStack: true,
+// 	TLS:       &tls.Config{}, // Enable TLS
+// }
+
+// w := kafka.NewWriter(kafka.WriterConfig{
+// 	Brokers: []string{"my-cluster-kafka-bootstrap:9091", "my-cluster-kafka-bootstrap:9092", "my-cluster-kafka-bootstrap:9093"},
+// 	Topic:   "mytopic",
+// 	Dialer:  dialer, // Use the custom dialer
+// })
+
+// // Convert the data struct into a byte slice
+// valueBytes, err := json.Marshal(value)
+// if err != nil {
+// 	log.Fatalf("Failed to marshal value: %v", err)
+// }
+
+// err = w.WriteMessages(context.Background(), kafka.Message{
+// 	Value: valueBytes,
+// })
+
+// if err != nil {
+// 	log.Fatalf("Failed to write message: %v", err)
+// }
 
 // func Produce(value model.Data) {
 // 	topic := "mytopic"

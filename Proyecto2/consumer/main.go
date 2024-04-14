@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	logDB "proyecto2/consumer/db/log"
@@ -15,10 +16,19 @@ import (
 // TODO: What exactly does save on redis and mongo?
 
 // Function that recieves the messages from the kafka topic and sends them to mongo and redis
-func processEvent(event models.Data) {
+func processEvent(event []byte) {
+
+	// unmarshal the data
+	var data models.Data
+	err := json.Unmarshal(event, &data)
+	if err != nil {
+		fmt.Printf("Failed to unmarshal message: %s", err)
+		return
+	}
+
 	// Create a log object
 	log := models.Log{
-		Value:     event.Name,
+		Data:      data,
 		CreatedAt: time.Now().String(),
 	}
 
@@ -31,27 +41,54 @@ func processEvent(event models.Data) {
 }
 
 func main() {
-	// make a new reader that consumes from topic-A, partition 0, at offset 42
+	// to consume messages
+	topic := "mytopic"
+
 	r := kafka.NewReader(kafka.ReaderConfig{
-		Brokers:   []string{"my-cluster-kafka-bootstrap:9091", "my-cluster-kafka-bootstrap:9092", "my-cluster-kafka-bootstrap:9093"},
-		Topic:     "mytopic",
+		Brokers:   []string{"my-cluster-kafka-bootstrap:9092"},
+		Topic:     topic,
 		Partition: 0,
+		MinBytes:  10e3, // 10KB
 		MaxBytes:  10e6, // 10MB
 	})
-	r.SetOffset(42)
 
 	for {
 		m, err := r.ReadMessage(context.Background())
 		if err != nil {
+			log.Println("failed to read message:", err)
 			break
 		}
 		fmt.Printf("message at offset %d: %s = %s\n", m.Offset, string(m.Key), string(m.Value))
+
+		// Process the event
+		processEvent(m.Value)
 	}
 
 	if err := r.Close(); err != nil {
 		log.Fatal("failed to close reader:", err)
 	}
 }
+
+// // make a new reader that consumes from topic-A, partition 0, at offset 42
+// r := kafka.NewReader(kafka.ReaderConfig{
+// 	Brokers:   []string{"my-cluster-kafka-bootstrap:9092"},
+// 	Topic:     "mytopic",
+// 	Partition: 0,
+// 	MaxBytes:  10e6, // 10MB
+// })
+// r.SetOffset(42)
+
+// for {
+// 	m, err := r.ReadMessage(context.Background())
+// 	if err != nil {
+// 		break
+// 	}
+// 	fmt.Printf("message at offset %d: %s = %s\n", m.Offset, string(m.Key), string(m.Value))
+// }
+
+// if err := r.Close(); err != nil {
+// 	log.Fatal("failed to close reader:", err)
+// }
 
 // func main() {
 // 	c, err := kafka.NewConsumer(&kafka.ConfigMap{

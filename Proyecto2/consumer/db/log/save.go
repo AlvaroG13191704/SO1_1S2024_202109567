@@ -15,6 +15,6 @@ func (lg *LogCollection) SaveLog(value models.Log) {
 		log.Println(" Error saving log: ", err)
 	}
 
-	log.Println("Log saved: ", result)
+	log.Println("Log saved in mongo -> ", result)
 
 }

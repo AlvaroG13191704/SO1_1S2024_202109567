@@ -63,7 +63,7 @@ func insertData(c *fiber.Ctx) error {
 
 func main() {
 	app := fiber.New()
-	app.Post("/", insertData)
+	app.Post("/grcp", insertData)
 
 	err := app.Listen(":3000")
 	if err != nil {

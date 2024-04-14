@@ -1,7 +1,7 @@
 package models
 
 type Log struct {
-	Value     string
+	Data      Data
 	CreatedAt string
 }
 

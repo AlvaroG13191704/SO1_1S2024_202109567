@@ -74,7 +74,18 @@ Luego se aplica el archivo `ingress.yaml` para poder acceder a los servicios des
 kubectl apply -f ingress.yaml # deploy ingress
 ```
 
+### Kafka
 
+Comandos para crear los pods de kafka usando Strimzi
+  
+  ```bash
+  kubectl create -f 'https://strimzi.io/install/latest?namespace=so1-proyecto2' -n so1-proyecto2
+  kubectl get pod -n so1-proyecto2 --watch
+
+  kubectl apply -f https://strimzi.io/examples/latest/kafka/kafka-persistent-single.yaml -n so1-proyecto2
+
+  kubectl get pod -n so1-proyecto2
+  ```
 
 
 ### Comandos esenciales

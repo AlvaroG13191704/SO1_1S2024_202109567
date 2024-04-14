@@ -20,15 +20,15 @@ spec:
         - containerPort: 3000
         resources:
           limits:
-            cpu: "0.3"
+            cpu: "0.2"
             memory: "500Mi"
       - name: grcp-server
-        image: alvarog1318/s1p2_grcp_producer_server:v0.3
+        image: alvarog1318/s1p2_grcp_producer_server:v0.6
         ports:
         - containerPort: 3001
         resources:
           limits:
-            cpu: "0.3"
+            cpu: "0.2"
             memory: "500Mi"
 ---
 apiVersion: v1
