@@ -1,31 +1,51 @@
 
 use std::net::SocketAddr;
-use futures::TryStreamExt;
 use hyper::server::conn::Http;
 use hyper::service::service_fn;
 use hyper::{Body, Method, Request, Response, StatusCode};
 use tokio::net::TcpListener;
-use kafka::producer::{Producer, Record};
-use kafka::producer::{Producer, Record, RequiredAcks};
+use rskafka::{
+    client::{
+        ClientBuilder,
+        partition::{Compression, UnknownTopicHandling},
+    },
+    record::Record,
+};
+use chrono::Utc;
+use std::collections::BTreeMap;
 use serde_json::Value;
-use std::time::Duration;
 
 // produce a event to kafka
-async fn produce(event: Value) -> Result<(), kafka::error::Error> {
-    // List of Kafka brokers
-    let brokers = "localhost:9092";
-
-    // Convert the JSON object to a string
+async fn produce(event: Value) -> Result<(), Box<dyn std::error::Error>> {
+    let brokers = "my-cluster-kafka-bootstrap:9092";
     let event_str = event.to_string();
 
-    // Create a Kafka producer
-    let producer = Producer::from_hosts(vec![brokers.to_owned()])
-        .with_ack_timeout(Duration::from_secs(1))
-        .with_required_acks(RequiredAcks::One)
-        .create()?;
+    let client = ClientBuilder::new(vec![brokers.to_owned()]).build().await?;
 
-    // Send the event to the "my-topic" Kafka topic
-    producer.send(&Record::from_value("my-topic", &event_str))?;
+    let topic = "mytopic";
+    let controller_client = client.controller_client().unwrap();
+    controller_client.create_topic(
+        topic,
+        0,      // partitions
+        1,      // replication factor
+        5_000,  // timeout (ms)
+    ).await?;
+
+    let partition_client = client
+        .partition_client(
+            topic.to_owned(),
+            0,  // partition
+            UnknownTopicHandling::Retry,
+        )
+        .await?;
+
+        let record = Record {
+            key: None,
+            value: Some(event_str.into_bytes()),
+            headers: BTreeMap::new(),
+            timestamp: Utc::now(),
+        };
+    partition_client.produce(vec![record], Compression::default()).await?;
 
     Ok(())
 }
@@ -39,7 +59,7 @@ async fn echo(req: Request<Body>) -> Result<Response<Body>, hyper::Error> {
         ))),
 
         // Simply echo the body back to the client.
-        (&Method::POST, "/") => {
+        (&Method::POST, "/wasm") => {
             let whole_body = hyper::body::to_bytes(req.into_body()).await?;
             let event: Value = serde_json::from_slice(&whole_body).unwrap();
             match produce(event).await {
