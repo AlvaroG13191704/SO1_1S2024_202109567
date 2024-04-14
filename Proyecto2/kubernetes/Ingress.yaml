@@ -16,6 +16,13 @@ spec:
                 port:
                   number: 3000
             path: /grcp
+          - pathType: Prefix
+            backend:
+              service:
+                name: wasm-producer-service
+                port:
+                  number: 3000
+            path: /wasm
 
 # apiVersion: networking.k8s.io/v1
 # kind: Ingress

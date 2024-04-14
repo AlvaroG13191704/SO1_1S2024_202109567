@@ -6,4 +6,4 @@ RUN cargo build --target wasm32-wasi --release
 
 FROM wasmedge/slim-runtime:0.10.1
 COPY --from=build-env /app/target/wasm32-wasi/release /
-CMD ["wasmedge", "--dir", ".:/", "/api-rest.wasm"]
+CMD ["wasmedge", "--dir", ".:/", "/api.wasm"]

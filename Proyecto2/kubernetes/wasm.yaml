@@ -14,13 +14,13 @@ spec:
         app: wasm-producer
     spec:
       containers:
-      - name: grcp-client
-        image: alvarog1318/s1p2_wasm_producer:v0.1
+      - name: wasm-producer
+        image: alvarog1318/s1p2_wasm_producer:v0.2
         ports:
         - containerPort: 3000
         resources:
           limits:
-            cpu: "500m"
+            cpu: "0.3"
             memory: "500Mi"
 ---
 apiVersion: v1
@@ -33,6 +33,6 @@ spec:
     app: wasm-producer
   ports:
     - protocol: TCP
-      port: 80
+      port: 3000
       targetPort: 3000
   type: ClusterIP
