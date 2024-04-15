@@ -15,9 +15,9 @@ spec:
     spec:
       containers:
       - name: wasm-producer
-        image: alvarog1318/s1p2_wasm_producer:v0.2
+        image: alvarog1318/s1p2_wasm_producer:v0.3
         ports:
-        - containerPort: 3000
+        - containerPort: 8080
         resources:
           limits:
             cpu: "0.3"
@@ -33,6 +33,6 @@ spec:
     app: wasm-producer
   ports:
     - protocol: TCP
-      port: 3000
-      targetPort: 3000
+      port: 8080
+      targetPort: 8080
   type: ClusterIP
