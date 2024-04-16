@@ -7,3 +7,5 @@
 ### [Hoja de trabajo 1 - Modulos del Kernel ](HTS/HT_1/readme.md)
 
 ### [Tarea 4 - Locust, gRPC y SQL GCP ](Tareas/Tarea_4/readme.md)
+
+### [Tarea 5 - Grafana con Redis ](Tareas/Tarea_5/readme.md)
