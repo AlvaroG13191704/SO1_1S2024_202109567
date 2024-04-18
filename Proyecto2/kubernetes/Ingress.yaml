@@ -19,7 +19,7 @@ spec:
           - pathType: Prefix
             backend:
               service:
-                name: wasm-producer-service
+                name: wasm-client-service
                 port:
                   number: 8080
             path: /wasm
