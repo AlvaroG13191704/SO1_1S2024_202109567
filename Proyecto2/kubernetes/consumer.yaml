@@ -4,7 +4,7 @@ metadata:
   name: consumer
   namespace: so1-proyecto2
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: consumer
@@ -15,8 +15,8 @@ spec:
     spec:
       containers:
       - name: consumer
-        image: alvarog1318/s1p2_consumer:v2.0
+        image: alvarog1318/s1p2_consumer:v2.5
         resources:
           limits:
-            cpu: "0.5"
+            cpu: "0.2"
             memory: "500Mi"

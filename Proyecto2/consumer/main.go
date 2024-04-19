@@ -10,6 +10,7 @@ import (
 	"proyecto2/consumer/redis"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/segmentio/kafka-go"
 )
 
@@ -45,11 +46,13 @@ func main() {
 	topic := "mytopic"
 
 	r := kafka.NewReader(kafka.ReaderConfig{
-		Brokers:   []string{"my-cluster-kafka-bootstrap:9092"},
-		Topic:     topic,
-		Partition: 0,
-		MinBytes:  10e3, // 10KB
-		MaxBytes:  10e6, // 10MB
+		Brokers:     []string{"my-cluster-kafka-bootstrap:9092"},
+		Topic:       topic,
+		Partition:   0,
+		MinBytes:    10e3, // 10KB
+		MaxBytes:    10e6, // 10MB
+		StartOffset: kafka.LastOffset,
+		GroupID:     uuid.New().String(), // Generate a unique GroupID
 	})
 
 	for {
