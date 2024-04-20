@@ -1,44 +1,44 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: grcp-producer
+  name: grpc-producer
   namespace: so1-proyecto2
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: grcp-producer
+      app: grpc-producer
   template:
     metadata:
       labels:
-        app: grcp-producer
+        app: grpc-producer
     spec:
       containers:
-      - name: grcp-client
-        image: alvarog1318/s1p2_grcp_producer_client:v0.4
+      - name: grpc-client
+        image: alvarog1318/s1p2_grpc_producer_client:v0.0
         ports:
         - containerPort: 3000
         resources:
           limits:
-            cpu: "0.2"
+            cpu: "0.4"
             memory: "500Mi"
-      - name: grcp-server
-        image: alvarog1318/s1p2_grcp_producer_server:v0.6
+      - name: grpc-server
+        image: alvarog1318/s1p2_grpc_producer_server:v0.0
         ports:
         - containerPort: 3001
         resources:
           limits:
-            cpu: "0.2"
+            cpu: "0.4"
             memory: "500Mi"
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: grcp-client-service
+  name: grpc-client-service
   namespace: so1-proyecto2
 spec:
   selector:
-    app: grcp-producer
+    app: grpc-producer
   ports:
     - protocol: TCP
       port: 3000

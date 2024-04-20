@@ -14,15 +14,11 @@ gcloud init
 gcloud components install kubectl
 
 # Crear un cluster
-gcloud container clusters create proyecto2 --num-nodes=1 --tags=allin --tags=allout --enable-legacy-authorization --issue-client-certificate --preemptible --machine-type=n1-standard-2
+gcloud container clusters create proyecto2 --num-nodes=1 --tags=allin --tags=allout --enable-legacy-authorization --issue-client-certificate --preemptible --machine-type=n1-standard-4
 
-# conectar kubectl al cluster
-gcloud container clusters get-credentials proyecto2 --zone us-central1-a --project sopes1-417522
+# port forward
+kubectl port-forward -n so1-proyecto2 --address 0.0.0.0 svc/grafana 3000:3000
 
-# External API of mongo-service
-NAME            TYPE           CLUSTER-IP     EXTERNAL-IP      PORT(S)           AGE
-mongo-service   LoadBalancer   10.33.91.249   34.31.32.118     27017:31001/TCP   101m
-redis-service   LoadBalancer   10.33.93.93    35.224.242.190   6379:32096/TCP    47s
 
 ```
 

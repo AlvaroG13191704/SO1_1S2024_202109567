@@ -65,6 +65,13 @@ func main() {
 
 		// Process the event
 		processEvent(m.Value)
+
+		// uncommit
+		err = r.CommitMessages(context.Background(), m)
+		if err != nil {
+			log.Println("failed to commit message:", err)
+		}
+
 	}
 
 	if err := r.Close(); err != nil {

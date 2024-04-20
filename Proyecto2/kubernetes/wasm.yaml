@@ -20,7 +20,7 @@ spec:
         - containerPort: 8080
         resources:
           limits:
-            cpu: "0.2"
+            cpu: "0.4"
             memory: "500Mi"
       - name: wasm-server
         image: alvarog1318/s1p2_wasm_producer_server:v0.1
@@ -28,7 +28,7 @@ spec:
         - containerPort: 8081
         resources:
           limits:
-            cpu: "0.2"
+            cpu: "0.4"
             memory: "500Mi"
 ---
 apiVersion: v1

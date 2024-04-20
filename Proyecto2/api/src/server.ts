@@ -36,7 +36,10 @@ app.get("/", (req: Request, res: Response) => {
 app.get("/logs", async (req: Request, res: Response) => {
   // get all logs from logs collection
   const coll = mongoose.connection.collection("logs");
-  const logs = await coll.find({}).toArray();
+  const logs = await coll.find({})
+                         .sort({createdat: -1})
+                         .limit(20)
+                         .toArray();
 
   const logsArray: Log[] = [];
 
@@ -51,5 +54,5 @@ app.get("/logs", async (req: Request, res: Response) => {
 });
 
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  console.log(`Server is running on port http://localhost:${port}`);
 });
