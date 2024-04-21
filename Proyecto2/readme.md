@@ -1,38 +1,139 @@
-## Creación de los Cluster en GPC
+# Proyecto 2 - Alvaro Norberto García Meza - 202109567
+# Documentación
 
-### Comandos para crear un cluster en GPC
+## Introducción
+Este proyecto implementa un sistema de votaciones para un concurso de bandas musicales guatemaltecas utilizando una arquitectura de microservicios desplegada en un clúster de Kubernetes. El objetivo es enviar tráfico simulado a través de diferentes servicios, que incluyen productores y consumidores, para procesar y almacenar los datos generados por las votaciones.
+
+Los productores, desarrollados con gRPC y Wasm, envían datos a un sistema de mensajería basado en Kafka, que actúa como intermediario para la comunicación asincrónica. Los consumidores, programados en Golang, procesan las peticiones de Kafka y almacenan la información en bases de datos Redis y MongoDB. Redis se usa para contar las votaciones en tiempo real, mientras que MongoDB guarda los registros o logs del sistema.
+
+Para visualizar los datos, se utiliza Grafana para crear dashboards que muestren métricas en tiempo real. Además, el proyecto incluye una API en Node.js y una aplicación web en Vue.js desplegadas en Google Cloud Run para interactuar con el sistema y mostrar información almacenada en MongoDB.
+
+## Objetivos
+- Implementar un sistema distribuido con microservicios en Kubernetes.
+- Encolar distintos servicios con sistema de mensajería Kafka.
+- Utilizar Grafana como interfaz para visualizar métricas en tiempo real.
+
+## Descripción de cada tecnología
+
+### Kubernetes
+Kubernetes es una plataforma de código abierto para automatizar la implementación, escalado y gestión de aplicaciones en contenedores. En este proyecto, se utiliza un clúster de Kubernetes alojado en Google Cloud para implementar microservicios y gestionar la comunicación entre ellos. Se incluye un servidor Kafka, productores y consumidores de datos, así como bases de datos y otros servicios necesarios para el sistema de votación.
+
+### Locust
+Locust es una herramienta para generar tráfico y realizar pruebas de carga en aplicaciones. En este proyecto, se utiliza para enviar datos a diferentes servidores desplegados en Kubernetes, simulando el tráfico generado por las votaciones. Está desarrollado en Python y se ejecuta localmente para generar el tráfico necesario.
+
+### Cliente - Servidor (Wasm + RUST)
+Se implementa una arquitectura cliente servidor, donde el cliente escrito en Rust y compilado a WASM actua como el receptor del trafico del exterior y lo envia al servidor escrito en Rust que se encarga de producir los mensajes a Kafka.
+
+### Cliente - servidor (gRPC + Golang)
+Se implementa una arquitectura cliente servidor, donde el cliente escrito en Golang actua como el receptor del trafico del exterior y lo envia al servidor usando el protocolo gRPC escrito en Golang que se encarga de producir los mensajes a Kafka.
+
+### Kafka (con strimzi)
+Kafka es una plataforma de mensajería distribuida que permite el envío y recepción de mensajes de forma asincrónica. En este proyecto, se utiliza Kafka para encolar los datos generados por los productores y consumirlos en los servicios correspondientes. Strimzi es un operador de Kubernetes que facilita la implementación y gestión de Kafka en un clúster de Kubernetes.
+
+### Consumidor (Golang)
+El consumidor es un servicio que recibe los mensajes de Kafka y los procesa para almacenarlos en bases de datos. En este proyecto, se implementa un consumidor en Golang que recibe los datos de votaciones y los almacena en bases de datos Redis y MongoDB.
+
+### Redis
+Redis es una base de datos en memoria, rápida y con capacidad para almacenar datos clave-valor. En este proyecto, se utiliza para guardar contadores y otras métricas en tiempo real generadas por el consumidor Golang.
+
+### MongoDB
+MongoDB es una base de datos NoSQL que permite almacenar documentos en formato JSON. Se utiliza para guardar logs generados por los diferentes servicios del sistema de votaciones. Los datos almacenados en MongoDB se pueden consultar a través de una aplicación web.
+### Grafana
+Grafana es una herramienta para crear dashboards y visualizar datos en tiempo real. En el proyecto, Grafana se conecta a Redis para mostrar gráficos y métricas relacionadas con el sistema de votaciones. Esto permite observar el flujo de votaciones en tiempo real y otras estadísticas importantes para el proyecto.
+
+### Cloud Run (GCP)
+Cloud Run es una plataforma para ejecutar aplicaciones en contenedores en Google Cloud. Aquí, se utiliza para desplegar una API en Node.js y una aplicación web en Vue.js. La API permite interactuar con el sistema de votaciones, y la aplicación web muestra los últimos registros de MongoDB en forma de terminal para facilitar la visualización de logs y otros datos.
+
+## Descripción de ada deployment y service de K8S
+
+### namespace.yaml
+
+Este archivo tiene un namespace llamado `so1-proyecto2` para poder tener un espacio de nombres para las bases de datos y
+poder tener un mejor control de los recursos que se van a utilizar.
 
 ```bash
-# Inicializa la configuración de gcloud
-gcloud init
-
-# Escgoer un usuario y proyecto
-
-# Establecer zona central us-central1-a
-
-# instalar kubectl
-gcloud components install kubectl
-
-# Crear un cluster
-gcloud container clusters create proyecto2 --num-nodes=1 --tags=allin --tags=allout --enable-legacy-authorization --issue-client-certificate --preemptible --machine-type=n1-standard-4
-
-# port forward
-kubectl port-forward -n so1-proyecto2 --address 0.0.0.0 svc/grafana 3000:3000
-
-
+kubectl apply -f namespace.yaml # deploy namespace
 ```
 
-### Conectarse a mongocompass
+
+### mongo.yaml
+
+Este archivo tiene un deployment de mongo con un servicio de tipo LoadBalancer para poder acceder a la base de datos desde afuera del cluster o bien usando el nombre del servicio como DNS.
 
 ```bash
-mongodb://34.31.32.118:27017/
+kubectl apply -f mongo.yaml # deploy mongo pod
 ```
 
-### Conectarse a redis 
+### redis.yaml
+
+Este archivo tiene un deployment de redis con un servicio de tipo LoadBalancer para poder acceder a la base de datos desde afuera del cluster o bien usando el nombre del servicio como DNS.
 
 ```bash
-35.224.242.190:6379
+kubectl apply -f redis.yaml # deploy redis pod
 ```
 
-Para comunicar los servicios con mongo y redis es tan simple como usar el nombre 
-de los servicios al momento de conectarse con código a los servicios.
+### grcp.yaml
+Es un deployemnt que cuenta con un pod con dos contenedores, un cliente el cual es un servicio en golang que recibe data desde el exterior y que la procesa para mandar en gRCP al servidor que es un servicio escrito en golang que recibe la data y produce un evento a kafka.
+
+Cuenta con un servicio que de tipo ClusterIP para poder acceder al pod desde el cluster usando un Ingress.
+
+```bash
+kubectl apply -f grpc.yaml # deploy grpc pod
+```
+
+### wasm.yaml
+
+Es un deployemnt de un pod con un servicio escrito en Rust compilado en WASMEDGE que recibe data desde el exterior y que produce un evento a kafka.
+
+Cuenta con un servicio que de tipo ClusterIP para poder acceder al pod desde el cluster usando un Ingress.
+
+```bash
+kubectl apply -f wasm.yaml # deploy wasm pod
+```
+
+
+### consumer.yaml
+
+Es un deployemnt de un pod con un servicio escrito en golang que consume los eventos de kafka y los guarda en la base de datos de mongo y redis
+
+```bash
+kubectl apply -f consumer.yaml # deploy consumer pod
+```
+
+
+### ingress.yaml
+
+Para el ingres se necesita un controlador de ingres, en este caso se utilizo el controlador de ingress de NGINX usando Helm.
+  
+  ```bash
+kubectl create ns nginx-ingress
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx 
+helm repo update 
+helm install nginx-ingress ingress-nginx/ingress-nginx -n nginx-ingress
+kubectl get services -n nginx-ingress # (To get the Load Balancer IP Address)
+  ```
+
+Obtener la IP Externa del Load Balancer y agregarla al archivo `ingress.yaml` en la sección `spec.rules.host` para poder acceder a los servicios desde afuera del cluster.
+
+Luego se aplica el archivo `ingress.yaml` para poder acceder a los servicios desde afuera del cluster.
+```bash
+kubectl apply -f ingress.yaml # deploy ingress
+```
+
+### Kafka
+
+Comandos para crear los pods de kafka usando Strimzi
+  
+  ```bash
+  kubectl create -f 'https://strimzi.io/install/latest?namespace=so1-proyecto2' -n so1-proyecto2
+  kubectl get pod -n so1-proyecto2 --watch
+
+  kubectl apply -f https://strimzi.io/examples/latest/kafka/kafka-persistent-single.yaml -n so1-proyecto2
+
+  kubectl get pod -n so1-proyecto2
+  ```
+## Ejemplo de funcionamiento con capturas de pantalla
+
+
+## Conclusiones
+
