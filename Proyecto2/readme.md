@@ -133,7 +133,23 @@ Comandos para crear los pods de kafka usando Strimzi
   kubectl get pod -n so1-proyecto2
   ```
 ## Ejemplo de funcionamiento con capturas de pantalla
+#### Injección de tráfico con Locust al servicio gRPC
+![Locust](images/grpc.png)
 
+#### Injección de tráfico con Locust al servicio Wasm
+![Locust](images/wasm.png)
+
+#### Logs de los valores de las votaciones en MongoDB
+![MongoDB](images/frontend.png)
+
+#### Grafana mostrando las métricas de Redis
+![Grafana](images/grafana1.png)
+![Grafana](images/grafana2.png)
 
 ## Conclusiones
 
+- Al inyectar a cada servicio un trafico de 1010 peticiones con una cantidad 4 usuarios, se determino que el servicio de gRPC fue el que menos se tardó. Fue casi el doble de rápido que el servicio de WASM, eso se debió a que el servicio hecho en Rust utilizo en su totalidad HTTP en comparación al servicio hecho en golang que utilizó gRPC para comunicar la información entre el cliente y el servidor.  Se sabe que gRPC es mucho más rápido, eficiente y ligero que el protocolo de HTTP por la forma en como serializa la información y que las funciones a ejecutar se realizan en el servidor y solo retorna la respuesta.
+  
+- WASM es una herramienta que se utilizaría en ámbitos donde los recursos son muy limitados, donde el ancho de banda y los recursos de hardware son escasos. gRPC es una buena herramienta para mantener sistemas distribuidos y cuando se necesita ser lo más eficiente.
+
+- El uso de Kubernetes para crear sistemas distribuidos, donde múltiples tecnologías puedan convivir y compartir información es una excelente opción para tener el control de todo y crear arquitecturas escalables, automatizadas y seguras.
